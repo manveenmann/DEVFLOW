@@ -3,6 +3,7 @@ import './globals.css'
 import React from 'react'
 import {Inter, Space_Grotesk} from 'next/font/google'
 import type {Metadata} from 'next'
+import { ThemeProvider } from '@/context/ThemeProvider'
 
 export const metadata: Metadata = { 
   title: "DevFlow",
@@ -30,20 +31,21 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <ClerkProvider 
-      appearance={{
-        elements: {
-          formButtonPrimary: 'primary-gradient', 
-          footerActionLink: 'primary-text-gradient hover:text-primary-500'
-        }
-      }}
-    >
       <html lang="en">
         <body className={`${inter.variable} ${space_grotesk.variable}`}>
-          <h1 className="h1-bold">This is a header</h1>
-          {children}
+          <ClerkProvider 
+            appearance={{
+              elements: {
+                formButtonPrimary: 'primary-gradient', 
+                footerActionLink: 'primary-text-gradient hover:text-primary-500'
+              }
+            }}
+          >
+            <ThemeProvider>
+              {children}
+            </ThemeProvider>
+          </ClerkProvider>
         </body>
       </html>
-    </ClerkProvider>
   )
 }
