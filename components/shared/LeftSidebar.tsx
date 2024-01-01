@@ -70,9 +70,7 @@ const LeftSidebar = () => {
                 height={20}
                 className="invert-colors lg:hidden"
               />
-              <span className="max-lg:hidden primary-text-gradient">
-                Sign Up
-              </span>
+              <span className="max-lg:hidden">Sign Up</span>
             </Button>
           </Link>
         </div>
