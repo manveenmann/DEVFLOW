@@ -11,7 +11,7 @@ export default authMiddleware({
     "/jobs",
     "/api/webhooks(.*)",
   ],
-  ignoredRoutes: ["/api/*"],
+  ignoredRoutes: ["/api/(.*)"],
 });
 
 export const config = {
