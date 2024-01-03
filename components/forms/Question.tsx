@@ -21,7 +21,7 @@ import { Badge } from "../ui/badge";
 import { createQuestion } from "@/lib/actions/question.action";
 import { auth } from "@clerk/nextjs";
 import { getUserByClerkId } from "@/lib/actions/user.action";
-import { redirect, useRouter } from "next/navigation";
+import { redirect, usePathname, useRouter } from "next/navigation";
 
 const type = "create";
 
@@ -30,6 +30,7 @@ const Question = () => {
   const editorRef = useRef(null);
   const { mode, setMode } = useTheme();
   const router = useRouter();
+  const path = usePathname();
 
   //TODO: Get user dynamically
   const user = { userId: "123123123" };
@@ -54,7 +55,7 @@ const Question = () => {
         throw new Error("Could not get user ID from clerk");
       }
       const mongoUser = JSON.parse(await getUserByClerkId(user.userId));
-      await createQuestion({ author: mongoUser._id, ...values });
+      await createQuestion({ author: mongoUser._id, path: path, ...values });
       router.push("/");
     } catch (e) {
       console.error(`Error: ${e}`);
