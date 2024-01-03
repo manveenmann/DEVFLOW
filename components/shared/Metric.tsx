@@ -22,6 +22,7 @@ const Metric = ({
   textStyles,
   href,
 }: MetricProps) => {
+  console.log(imgUrl);
   const metricContent = (
     <>
       <Image

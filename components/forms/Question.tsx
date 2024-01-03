@@ -19,9 +19,9 @@ import { QuestionsSchema } from "@/lib/validations";
 import { useTheme } from "@/context/ThemeProvider";
 import { Badge } from "../ui/badge";
 import { createQuestion } from "@/lib/actions/question.action";
-import { auth } from "@clerk/nextjs";
 import { getUserByClerkId } from "@/lib/actions/user.action";
 import { redirect, usePathname, useRouter } from "next/navigation";
+import { useAuth } from "@clerk/nextjs";
 
 const type = "create";
 
@@ -32,8 +32,7 @@ const Question = () => {
   const router = useRouter();
   const path = usePathname();
 
-  //TODO: Get user dynamically
-  const user = { userId: "123123123" };
+  const user = useAuth();
   if (!user) {
     redirect("/sign-in");
   }
