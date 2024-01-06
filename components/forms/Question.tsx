@@ -238,8 +238,10 @@ const Question = () => {
           <Button
             type="submit"
             className={`${
-              isSumbutting ? "background-light800_dark300" : "primary-gradient"
-            } w-fit !text-light-900`}
+              isSumbutting
+                ? "background-light800_dark300"
+                : "primary-gradient !text-light-900"
+            } w-fit`}
             disabled={isSumbutting}
           >
             {isSumbutting
