@@ -13,7 +13,7 @@ import { revalidatePath } from "next/cache";
 
 export async function createQuestion(params: CreateQuestionParams) {
   try {
-    connectToDatabase();
+    await connectToDatabase();
 
     const q = await Question.create({
       title: params.title,
@@ -44,7 +44,7 @@ export async function createQuestion(params: CreateQuestionParams) {
 
 export async function getQuestions(params: GetQuestionsParams) {
   try {
-    connectToDatabase();
+    await connectToDatabase();
     const questions = await Question.find({})
       .populate({ path: "tags", model: Tag })
       .populate({ path: "author", model: User })
@@ -60,7 +60,7 @@ export async function getQuestionById(
   params: GetQuestionByIdParams,
 ): Promise<any> {
   try {
-    connectToDatabase();
+    await connectToDatabase();
     const question = await Question.findById(params.questionId)
       .populate({ path: "tags", model: Tag, select: "_id name" })
       .populate({
@@ -83,7 +83,7 @@ export async function upvoteQuestion({
   path,
 }: QuestionVoteParams) {
   try {
-    connectToDatabase();
+    await connectToDatabase();
 
     let updateQuery = {};
     if (hasupVoted) {
@@ -120,7 +120,7 @@ export async function downvoteQuestion({
   path,
 }: QuestionVoteParams) {
   try {
-    connectToDatabase();
+    await connectToDatabase();
 
     let updateQuery = {};
     if (hasdownVoted) {

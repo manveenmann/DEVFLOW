@@ -10,6 +10,7 @@ import {
 import { redirect, usePathname, useRouter } from "next/navigation";
 import { downvoteAnswer, upvoteAnswer } from "@/lib/actions/answer.action";
 import { saveQuestion } from "@/lib/actions/user.action";
+import { viewQuestion } from "@/lib/actions/interaction.action";
 
 interface Props {
   type: "answer" | "question";
@@ -79,7 +80,12 @@ const Votes = (params: Props) => {
     });
   };
 
-  console.log(params);
+  React.useEffect(() => {
+    viewQuestion({
+      userId: JSON.parse(params.userId),
+      questionId: JSON.parse(params.itemId),
+    });
+  }, [params.itemId, params.userId, path, router]);
 
   return (
     <div className="flex gap-5">

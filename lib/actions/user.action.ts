@@ -15,7 +15,7 @@ import Question from "@/database/question.model";
 
 export async function getUserByClerkId(userId: string) {
   try {
-    connectToDatabase();
+    await connectToDatabase();
 
     const user = await User.findOne({ clerkId: userId });
 
@@ -32,7 +32,7 @@ export async function getUserByClerkId(userId: string) {
 
 export async function createUser(userData: CreateUserParams) {
   try {
-    connectToDatabase();
+    await connectToDatabase();
     const newUser = await User.create(userData);
     return JSON.stringify(newUser.toJSON());
   } catch (err: any) {
@@ -43,7 +43,7 @@ export async function createUser(userData: CreateUserParams) {
 
 export async function updateUser(userData: UpdateUserParams) {
   try {
-    connectToDatabase();
+    await connectToDatabase();
     const { clerkId, updateData, path } = userData;
     const user = await User.findOneAndUpdate({ clerkId }, updateData, {
       new: true,
@@ -57,7 +57,7 @@ export async function updateUser(userData: UpdateUserParams) {
 
 export async function deleteUser(id: string) {
   try {
-    connectToDatabase();
+    await connectToDatabase();
     const user = await User.findOne({ clerkId: id });
     if (!user) {
       throw new Error("User not found");
@@ -76,7 +76,7 @@ export async function deleteUser(id: string) {
 
 export async function getAllUsers(params: GetAllUsersParams) {
   try {
-    connectToDatabase();
+    await connectToDatabase();
 
     // const { page = 1, pageSize = 20, filter, searchQuery } = params;
     const users = await User.find({}).sort({ createdAt: -1 });
@@ -93,7 +93,7 @@ export async function saveQuestion({
   questionId,
 }: ToggleSaveQuestionParams) {
   try {
-    connectToDatabase();
+    await connectToDatabase();
 
     const user = await User.findById(userId);
 
@@ -130,10 +130,10 @@ export async function getSavedQuestions({
   searchQuery,
 }: GetSavedQuestionsParams) {
   try {
-    connectToDatabase();
+    await connectToDatabase();
 
     const query = searchQuery
-      ? { title: { $regex: new RegExp(searchQuery, i) } }
+      ? { title: { $regex: new RegExp(searchQuery, "i") } }
       : {};
     const user = await User.findOne({ clerkId }).populate({
       path: "savedQuestions",

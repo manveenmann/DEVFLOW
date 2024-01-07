@@ -12,7 +12,7 @@ import Question from "@/database/question.model";
 
 export async function createAnswer(params: CreateAnswerParams) {
   try {
-    connectToDatabase();
+    await connectToDatabase();
 
     const { content, author, question, path } = params;
 
@@ -31,7 +31,7 @@ export async function createAnswer(params: CreateAnswerParams) {
 
 export async function getAllAnswers(params: GetAnswersParams) {
   try {
-    connectToDatabase();
+    await connectToDatabase();
     const answers = await Answer.find({ question: params.questionId })
       .populate("author", "_id clerkId name picture")
       .sort({ createdAt: -1 });
@@ -50,7 +50,7 @@ export async function upvoteAnswer({
   path,
 }: AnswerVoteParams) {
   try {
-    connectToDatabase();
+    await connectToDatabase();
 
     let updateQuery = {};
     if (hasupVoted) {
@@ -87,7 +87,7 @@ export async function downvoteAnswer({
   path,
 }: AnswerVoteParams) {
   try {
-    connectToDatabase();
+    await connectToDatabase();
 
     let updateQuery = {};
     if (hasdownVoted) {
