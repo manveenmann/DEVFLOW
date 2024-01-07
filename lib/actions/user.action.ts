@@ -122,16 +122,11 @@ export async function saveQuestion({
   }
 }
 
-export async function getSavedQuestions({
-  clerkId,
-  page,
-  filter,
-  pageSize,
-  searchQuery,
-}: GetSavedQuestionsParams) {
+export async function getSavedQuestions(params: GetSavedQuestionsParams) {
   try {
     await connectToDatabase();
 
+    const { clerkId, page = 1, pageSize = 10, searchQuery, filter } = params;
     const query = searchQuery
       ? { title: { $regex: new RegExp(searchQuery, "i") } }
       : {};
