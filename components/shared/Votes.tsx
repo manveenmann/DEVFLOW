@@ -9,6 +9,7 @@ import {
 } from "@/lib/actions/question.action";
 import { redirect, usePathname, useRouter } from "next/navigation";
 import { downvoteAnswer, upvoteAnswer } from "@/lib/actions/answer.action";
+import { saveQuestion } from "@/lib/actions/user.action";
 
 interface Props {
   type: "answer" | "question";
@@ -70,7 +71,15 @@ const Votes = (params: Props) => {
     }
   };
 
-  const handleSave = async () => {};
+  const handleSave = async () => {
+    await saveQuestion({
+      path,
+      userId: JSON.parse(params.userId),
+      questionId: JSON.parse(params.itemId),
+    });
+  };
+
+  console.log(params);
 
   return (
     <div className="flex gap-5">
