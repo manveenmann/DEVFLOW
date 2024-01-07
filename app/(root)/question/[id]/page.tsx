@@ -9,9 +9,17 @@ import RenderTag from "@/components/shared/RenderTag";
 import Answer from "@/components/forms/Answer";
 import AllAnswers from "@/components/shared/AllAnswers";
 import Votes from "@/components/shared/Votes";
+import { auth } from "@clerk/nextjs";
+import { getUserByClerkId } from "@/lib/actions/user.action";
+import { redirect } from "next/navigation";
 
 const Page = async ({ params }: { params: any }) => {
   const result = await getQuestionById({ questionId: params.id });
+  const { userId } = auth();
+  let mongoUser = { _id: "", savedQuestions: [] };
+  if (userId) {
+    mongoUser = JSON.parse(await getUserByClerkId(userId));
+  }
   if (!result) return <div>Not found</div>;
   return (
     <>
@@ -36,7 +44,17 @@ const Page = async ({ params }: { params: any }) => {
             </p>
           </Link>
           <div className="flex justify-end">
-            <Votes />
+            <Votes
+              type="question"
+              itemId={JSON.stringify(result._id)}
+              userId={JSON.stringify(mongoUser._id)}
+              upvotes={result.upvotes.length}
+              downvotes={result.downvotes.length}
+              hasUpvoted={result.upvotes.includes(mongoUser._id)}
+              hasDownvoted={result.downvotes.includes(mongoUser._id)}
+              /* @ts-ignore */
+              hasSaved={mongoUser.savedQuestions.includes(result._id)}
+            />
           </div>
         </div>
         <h2 className="h2-semibold text-dark200_light900 mt-3.5 w-full text-left">
@@ -84,6 +102,7 @@ const Page = async ({ params }: { params: any }) => {
 
       <AllAnswers
         answers={result.answers.length}
+        userId={userId}
         questionId={JSON.stringify(result._id)}
       />
     </>

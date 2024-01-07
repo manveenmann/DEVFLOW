@@ -7,6 +7,7 @@ import {
   CreateQuestionParams,
   GetQuestionByIdParams,
   GetQuestionsParams,
+  QuestionVoteParams,
 } from "./shared.types";
 import { revalidatePath } from "next/cache";
 
@@ -71,5 +72,79 @@ export async function getQuestionById(
   } catch (err: any) {
     console.error(`Error getting question by id: ${err.message}`);
     throw new Error("Error getting question by id");
+  }
+}
+
+export async function upvoteQuestion({
+  userId,
+  questionId,
+  hasupVoted,
+  hasdownVoted,
+  path,
+}: QuestionVoteParams) {
+  try {
+    connectToDatabase();
+
+    let updateQuery = {};
+    if (hasupVoted) {
+      updateQuery = { $pull: { upvotes: userId } };
+    } else if (hasdownVoted) {
+      updateQuery = {
+        $pull: { downvotes: userId },
+        $push: { upvotes: userId },
+      };
+    } else {
+      updateQuery = { $push: { upvotes: userId } };
+    }
+
+    const question = await Question.findByIdAndUpdate(questionId, updateQuery, {
+      new: true,
+    });
+
+    if (!question) {
+      throw new Error("Question not found");
+    }
+
+    revalidatePath(path);
+  } catch (err: any) {
+    console.error(`Error upvoting question: ${err.message}`);
+    throw new Error("Error upvoting question");
+  }
+}
+
+export async function downvoteQuestion({
+  questionId,
+  userId,
+  hasupVoted,
+  hasdownVoted,
+  path,
+}: QuestionVoteParams) {
+  try {
+    connectToDatabase();
+
+    let updateQuery = {};
+    if (hasdownVoted) {
+      updateQuery = { $pull: { downvotes: userId } };
+    } else if (hasupVoted) {
+      updateQuery = {
+        $pull: { upvotes: userId },
+        $push: { downvotes: userId },
+      };
+    } else {
+      updateQuery = { $push: { downvotes: userId } };
+    }
+
+    const question = await Question.findByIdAndUpdate(questionId, updateQuery, {
+      new: true,
+    });
+
+    if (!question) {
+      throw new Error("Question not found");
+    }
+
+    revalidatePath(path);
+  } catch (err: any) {
+    console.error(`Error downvoting question: ${err.message}`);
+    throw new Error("Error downvoting question");
   }
 }

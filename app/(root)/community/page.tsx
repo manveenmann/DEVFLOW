@@ -44,6 +44,7 @@ const page = async () => {
           <div className="paragraph-regular text-dark200_light800 mx-auto max-w-4xl text-center">
             <NoResult
               title="No Users Yet"
+              description=""
               linkText="Join to be the first"
               link="/sign-up"
             />
