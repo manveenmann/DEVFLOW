@@ -17,6 +17,7 @@ interface QuestionCardProps {
   answers: Array<Object>;
   upvotes: Array<Object>;
   createdAt: Date;
+  clerkId?: string;
 }
 
 const QuestionCard = ({

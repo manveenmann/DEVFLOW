@@ -30,3 +30,10 @@ export const getCount = (count: number): string => {
   else if (count > 1000) return `${(count / 1000).toFixed(1)}K`;
   else return `${count}`;
 };
+
+export const formatDate = (date: Date): string => {
+  const month = date.toLocaleString("default", { month: "long" });
+  const year = date.getFullYear();
+
+  return `${month} ${year}`;
+};
