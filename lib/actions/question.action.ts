@@ -198,3 +198,18 @@ export async function editQuestion({
     throw new Error("Error editing question");
   }
 }
+
+export async function getHotQuestions() {
+  try {
+    await connectToDatabase();
+    const questions = await Question.find({})
+      .populate({ path: "tags", model: Tag })
+      .populate({ path: "author", model: User })
+      .sort({ views: -1, upvotes: -1 })
+      .limit(5);
+    return questions;
+  } catch (err: any) {
+    console.error(`Error getting questions: ${err.message}`);
+    return [];
+  }
+}

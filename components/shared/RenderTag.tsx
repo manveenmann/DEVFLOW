@@ -16,7 +16,7 @@ const RenderTag = ({ _id, name, questions, showCount }: Props) => {
         {name}
       </Badge>
       {showCount && (
-        <p className="small-medium text-dark500_light700">({questions})</p>
+        <p className="small-medium text-dark500_light700">{questions}</p>
       )}
     </Link>
   );
