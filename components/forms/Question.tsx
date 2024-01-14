@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useRef } from "react";
 import { Editor } from "@tinymce/tinymce-react";
 import { Button } from "@/components/ui/button";
@@ -18,14 +20,22 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { QuestionsSchema } from "@/lib/validations";
 import { useTheme } from "@/context/ThemeProvider";
 import { Badge } from "../ui/badge";
-import { createQuestion } from "@/lib/actions/question.action";
+import { createQuestion, editQuestion } from "@/lib/actions/question.action";
 import { getUserByClerkId } from "@/lib/actions/user.action";
 import { redirect, usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 
-const type = "create";
+interface QuestionProps {
+  type?: string;
+  mongoUserId?: string;
+  questionDetails?: string;
+}
 
-const Question = () => {
+const Question = ({
+  type = "create",
+  mongoUserId,
+  questionDetails = "{}",
+}: QuestionProps) => {
   const [isSumbutting, setIsSubmitting] = React.useState(false);
   const editorRef = useRef(null);
   const { mode, setMode } = useTheme();
@@ -37,12 +47,17 @@ const Question = () => {
     redirect("/sign-in");
   }
 
+  const parsedQuestionDetails = JSON.parse(questionDetails);
+  const groupedTags = (parsedQuestionDetails.tags || []).map(
+    (tag: { name: string; _id: string }) => tag.name,
+  );
+
   const form = useForm<z.infer<typeof QuestionsSchema>>({
     resolver: zodResolver(QuestionsSchema),
     defaultValues: {
-      title: "",
-      description: "",
-      tags: [],
+      title: parsedQuestionDetails.title || "",
+      description: parsedQuestionDetails.description || "",
+      tags: groupedTags || [],
     },
   });
 
@@ -54,8 +69,22 @@ const Question = () => {
         throw new Error("Could not get user ID from clerk");
       }
       const mongoUser = JSON.parse(await getUserByClerkId(user.userId));
-      await createQuestion({ author: mongoUser._id, path: path, ...values });
-      router.push("/");
+      if (type === "edit") {
+        await editQuestion({
+          questionId: parsedQuestionDetails._id,
+          title: values.title,
+          content: values.description,
+          path: path,
+        });
+        router.push(`/question/${parsedQuestionDetails._id}`);
+      } else {
+        const q = await createQuestion({
+          author: mongoUser._id,
+          path: path,
+          ...values,
+        });
+        router.push(`/question/${q._id}`);
+      }
     } catch (e) {
       console.error(`Error: ${e}`);
     }
@@ -146,7 +175,7 @@ const Question = () => {
                       // @ts-ignore
                       editorRef.current = editor;
                     }}
-                    initialValue=""
+                    initialValue={parsedQuestionDetails.description || ""}
                     onBlur={field.onBlur}
                     onEditorChange={(c) => field.onChange(c)}
                     init={{
@@ -202,6 +231,7 @@ const Question = () => {
                     <Input
                       className="no-focus paragraph-regular background-light900_dark300 light-border-2 text-dark300_light700 min-h-[56px] border"
                       placeholder="Add tags..."
+                      disabled={type === "edit"}
                       onKeyDown={(e) => inputKeyDown(e, field)}
                     />
                     {field.value.length > 0 && (
@@ -211,16 +241,21 @@ const Question = () => {
                             key={tag}
                             className="subtle-medium background-light800_dark300 text-light400_light500 flex 
                             items-center justify-center gap-2 rounded-md border-none px-4 py-2 uppercase"
-                            onClick={() => handleTagRemove(tag, field)}
+                            onClick={() => {
+                              if (type === "create")
+                                handleTagRemove(tag, field);
+                            }}
                           >
                             {tag}
-                            <Image
-                              src="/assets/icons/close.svg"
-                              alt="close icon"
-                              width={12}
-                              height={12}
-                              className="cursor-pointer object-contain invert-0 dark:invert"
-                            />
+                            {type === "create" && (
+                              <Image
+                                src="/assets/icons/close.svg"
+                                alt="close icon"
+                                width={12}
+                                height={12}
+                                className="cursor-pointer object-contain invert-0 dark:invert"
+                              />
+                            )}
                           </Badge>
                         ))}
                       </div>

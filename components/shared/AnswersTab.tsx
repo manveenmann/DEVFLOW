@@ -15,12 +15,20 @@ const AnswersTab = async ({ userId, clerkId }: Props) => {
   return (
     <>
       {results.answers.map((answer) => (
-        <Link key={answer._id} href={`/question/${answer.question._id}`}>
+        <>
+          <Link key={answer._id} href={`/question/${answer.question._id}`}>
+            <h3 className="sm:h3-semibold base-semibold text-dark200_light900 line-clamp-1">
+              {answer.question.title}
+            </h3>
+          </Link>
           <AnswerCard
+            key={answer._id}
             _id={answer._id}
             content={answer.content}
             upvotes={answer.upvotes.length}
+            clerkId={clerkId}
             downvotes={answer.downvotes.length}
+            authorClerkId={answer.author.clerkId}
             upvoted={answer.upvotes.includes(mongoUser._id)}
             downvoted={answer.downvotes.includes(mongoUser._id)}
             authorId={answer.author._id}
@@ -28,13 +36,13 @@ const AnswersTab = async ({ userId, clerkId }: Props) => {
             imgUrl={answer.author.picture}
             createdAt={answer.createdAt}
             userId={mongoUser._id}
-            voting={false}
+            showActions
             saved={mongoUser.savedQuestions.includes(
               /* @ts-ignore */
               answer._id.toString(),
             )}
           />
-        </Link>
+        </>
       ))}
     </>
   );

@@ -24,3 +24,21 @@ export const AnswerSchema = z.object({
     .string()
     .min(100, { message: "Answer must contain at least 100 characters" }),
 });
+
+export const ProfileSchema = z.object({
+  name: z
+    .string()
+    .min(3, { message: "Name must contain at least 3 characters" })
+    .max(30, { message: "Name cannot be longer than 30 characters" }),
+  username: z
+    .string()
+    .min(3, { message: "Username must contain at least 3 characters" })
+    .max(30, { message: "Username cannot be longer than 30 characters" }),
+  bio: z
+    .string()
+    .max(100, { message: "Bio cannot be longer than 100 characters" }),
+  location: z
+    .string()
+    .max(30, { message: "Location cannot be longer than 30 characters" }),
+  portfolio: z.string().url(),
+});

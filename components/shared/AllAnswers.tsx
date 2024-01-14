@@ -37,12 +37,14 @@ const AllAnswers = async (params: AllAnswersProps) => {
           <AnswerCard
             key={answer._id}
             _id={answer._id}
+            clerkId={params.userId}
             content={answer.content}
             upvotes={answer.upvotes.length}
             downvotes={answer.downvotes.length}
             upvoted={answer.upvotes.includes(mongoUser._id)}
             downvoted={answer.downvotes.includes(mongoUser._id)}
             authorId={answer.author._id}
+            authorClerkId={answer.author.clerkId}
             authorName={answer.author.name}
             imgUrl={answer.author.picture}
             createdAt={answer.createdAt}

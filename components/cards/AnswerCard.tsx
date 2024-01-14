@@ -2,7 +2,9 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import ParseHTML from "../shared/ParseHTML";
+import EditDeleteAction from "../shared/EditDeleteAction";
 import Votes from "../shared/Votes";
+import { SignedIn } from "@clerk/nextjs";
 import { getTimestamp } from "@/lib/utils";
 
 interface Props {
@@ -11,6 +13,8 @@ interface Props {
   imgUrl: string;
   createdAt: Date;
   userId: string;
+  clerkId: string | null;
+  authorClerkId: string;
   upvotes: number;
   downvotes: number;
   upvoted: boolean;
@@ -19,6 +23,7 @@ interface Props {
   content: string;
   saved: boolean;
   voting?: boolean;
+  showActions?: boolean;
 }
 
 const AnswerCard = ({
@@ -27,6 +32,8 @@ const AnswerCard = ({
   imgUrl,
   createdAt,
   userId,
+  clerkId,
+  authorClerkId,
   upvotes,
   downvotes,
   upvoted,
@@ -35,6 +42,7 @@ const AnswerCard = ({
   content,
   saved,
   voting = true,
+  showActions = true,
 }: Props) => {
   return (
     <article key={_id} className="light-border border-b py-10">
@@ -73,6 +81,11 @@ const AnswerCard = ({
                 hasSaved={saved}
               />
             )}
+            <SignedIn>
+              {showActions && clerkId && clerkId === authorClerkId && (
+                <EditDeleteAction type="answer" itemId={JSON.stringify(_id)} />
+              )}
+            </SignedIn>
           </div>
         </div>
       </div>

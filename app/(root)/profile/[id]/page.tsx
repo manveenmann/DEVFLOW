@@ -60,21 +60,20 @@ const page = async ({ params, searchParams }: URLProps) => {
               </p>
             )}
           </div>
-
-          <div className="flex justify-end max-sm:mb-5 max-sm:w-full sm:mt-3">
-            <SignedIn>
-              {userInfo.user.clerkId === userId && (
-                <Link href="/profile/edit">
-                  <Button
-                    className="paragraph-medium btn-secondary 
+        </div>
+        <div className="flex max-sm:mb-5 max-sm:w-full sm:mt-3">
+          <SignedIn>
+            {userInfo.user.clerkId === userId && (
+              <Link href="/profile/edit">
+                <Button
+                  className="paragraph-medium btn-secondary 
                     text-dark300_light900 min-h-[46px] min-w-[175px] px-4 py-3"
-                  >
-                    Edit Profile
-                  </Button>
-                </Link>
-              )}
-            </SignedIn>
-          </div>
+                >
+                  Edit Profile
+                </Button>
+              </Link>
+            )}
+          </SignedIn>
         </div>
       </div>
       <Stats
@@ -82,7 +81,7 @@ const page = async ({ params, searchParams }: URLProps) => {
         totalAnswers={userInfo.totalAnswers}
       />
       <div className="mt-10 flex gap-10">
-        <Tabs defaultValue="account" className="">
+        <Tabs defaultValue="top-posts" className="">
           <TabsList className="background-light800_dark400 min-h-[42px] p-1">
             <TabsTrigger value="top-posts" className="tab">
               Top Posts
