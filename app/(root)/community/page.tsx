@@ -7,9 +7,10 @@ import Filter from "@/components/shared/Filter";
 import { getAllUsers } from "@/lib/actions/user.action";
 import UserCard from "@/components/cards/UserCard";
 import NoResult from "@/components/shared/NoResult";
+import { SearchParamsProps } from "@/types";
 
-const page = async () => {
-  const results = await getAllUsers({});
+const page = async ({ searchParams }: SearchParamsProps) => {
+  const results = await getAllUsers({ searchQuery: searchParams.q });
   return (
     <>
       <h1 className="h1-bold text-dark100_light900">All Questions</h1>

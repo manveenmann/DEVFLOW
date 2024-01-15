@@ -9,6 +9,7 @@ import {
 } from "./shared.types";
 import Tag from "@/database/tag.model";
 import Question from "@/database/question.model";
+import { FilterQuery } from "mongoose";
 
 export async function getTopInteractedTags(params: GetTopInteractedTagsParams) {
   try {
@@ -38,7 +39,12 @@ export async function getAllTags(params: GetAllTagsParams) {
   try {
     await connectToDatabase();
 
-    const tags = await Tag.find({});
+    const { page = 1, pageSize = 10, searchQuery } = params;
+    const query: FilterQuery<typeof Tag> = {};
+    if (searchQuery) {
+      query["name"] = { $regex: new RegExp(searchQuery, "i") };
+    }
+    const tags = await Tag.find(query);
 
     return { tags };
   } catch (err: any) {

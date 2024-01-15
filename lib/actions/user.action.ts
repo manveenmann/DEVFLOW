@@ -15,6 +15,7 @@ import {
 import { revalidatePath } from "next/cache";
 import Question from "@/database/question.model";
 import Answer from "@/database/answer.model";
+import { FilterQuery } from "mongoose";
 
 export async function getUserByClerkId(userId: string) {
   try {
@@ -96,8 +97,15 @@ export async function getAllUsers(params: GetAllUsersParams) {
   try {
     await connectToDatabase();
 
-    // const { page = 1, pageSize = 20, filter, searchQuery } = params;
-    const users = await User.find({}).sort({ createdAt: -1 });
+    const { page = 1, pageSize = 20, filter, searchQuery } = params;
+    const query: FilterQuery<typeof User> = {};
+    if (searchQuery) {
+      query.$or = [
+        { name: { $regex: new RegExp(searchQuery, "i") } },
+        { username: { $regex: new RegExp(searchQuery, "i") } },
+      ];
+    }
+    const users = await User.find(query).sort({ createdAt: -1 });
     return { users };
   } catch (err: any) {
     console.error(`Error getting users: ${err.message}`);

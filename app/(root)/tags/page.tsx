@@ -4,16 +4,17 @@ import NoResult from "@/components/shared/NoResult";
 import LocalSearch from "@/components/shared/search/LocalSearch";
 import { UserFilters } from "@/constants/filters";
 import { getAllTags } from "@/lib/actions/tag.actions";
+import { SearchParamsProps, URLProps } from "@/types";
 import React from "react";
 
-const page = async () => {
-  const results = await getAllTags({});
+const page = async ({ searchParams, params }: URLProps) => {
+  const results = await getAllTags({ searchQuery: searchParams.q });
   return (
     <>
       <h1 className="h1-bold text-dark100_light900">All Tags</h1>
       <div className="mt-11 flex justify-between gap-5 max-sm:flex-col sm:items-center">
         <LocalSearch
-          route="/tags"
+          route={`/tags/${params.id}`}
           iconPosition="left"
           imgSrc="/assets/icons/search.svg"
           placeholder="Search for tags"

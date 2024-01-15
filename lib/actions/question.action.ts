@@ -14,6 +14,7 @@ import {
 } from "./shared.types";
 import { revalidatePath } from "next/cache";
 import Interaction from "@/database/interaction.model";
+import { FilterQuery } from "mongoose";
 
 export async function createQuestion(params: CreateQuestionParams) {
   try {
@@ -49,8 +50,17 @@ export async function createQuestion(params: CreateQuestionParams) {
 
 export async function getQuestions(params: GetQuestionsParams) {
   try {
+    const { page, pageSize, filter, searchQuery } = params;
+    const query: FilterQuery<typeof Question> = {};
+    if (searchQuery) {
+      query.$or = [
+        { title: { $regex: new RegExp(searchQuery, "i") } },
+        { description: { $regex: new RegExp(searchQuery, "i") } },
+      ];
+    }
+
     await connectToDatabase();
-    const questions = await Question.find({})
+    const questions = await Question.find(query)
       .populate({ path: "tags", model: Tag })
       .populate({ path: "author", model: User })
       .sort({ createdAt: -1 });
