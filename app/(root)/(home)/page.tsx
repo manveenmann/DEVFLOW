@@ -11,7 +11,10 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 export default async function Home({ searchParams }: SearchParamsProps) {
-  const results = await getQuestions({ searchQuery: searchParams.q });
+  const results = await getQuestions({
+    searchQuery: searchParams.q,
+    filter: searchParams.filter,
+  });
   return (
     <>
       <div className="flex w-full flex-col-reverse justify-between gap-3 sm:flex-row sm:items-center">

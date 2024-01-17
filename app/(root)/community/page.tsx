@@ -10,7 +10,10 @@ import NoResult from "@/components/shared/NoResult";
 import { SearchParamsProps } from "@/types";
 
 const page = async ({ searchParams }: SearchParamsProps) => {
-  const results = await getAllUsers({ searchQuery: searchParams.q });
+  const results = await getAllUsers({
+    searchQuery: searchParams.q,
+    filter: searchParams.filter,
+  });
   return (
     <>
       <h1 className="h1-bold text-dark100_light900">All Questions</h1>
@@ -25,7 +28,6 @@ const page = async ({ searchParams }: SearchParamsProps) => {
         <Filter
           filters={UserFilters}
           otherClasses="min-h-[56px] sm:min-w-[170px]"
-          containerClasses="max-md:flex hidden"
         />
       </div>
 

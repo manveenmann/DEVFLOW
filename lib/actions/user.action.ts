@@ -99,13 +99,25 @@ export async function getAllUsers(params: GetAllUsersParams) {
 
     const { page = 1, pageSize = 20, filter, searchQuery } = params;
     const query: FilterQuery<typeof User> = {};
+    let sortQuery = {};
     if (searchQuery) {
       query.$or = [
         { name: { $regex: new RegExp(searchQuery, "i") } },
         { username: { $regex: new RegExp(searchQuery, "i") } },
       ];
     }
-    const users = await User.find(query).sort({ createdAt: -1 });
+    switch (filter) {
+      case "new_users":
+        sortQuery = { joinedAt: -1 };
+        break;
+      case "old_users":
+        sortQuery = { joinedAt: 1 };
+        break;
+      case "top_contributors":
+        sortQuery = { reputation: -1 };
+        break;
+    }
+    const users = await User.find(query).sort(sortQuery);
     return { users };
   } catch (err: any) {
     console.error(`Error getting users: ${err.message}`);
@@ -156,10 +168,28 @@ export async function getSavedQuestions(params: GetSavedQuestionsParams) {
     const query = searchQuery
       ? { title: { $regex: new RegExp(searchQuery, "i") } }
       : {};
+    let sortQuery = {};
+    switch (filter) {
+      case "most_recent":
+        sortQuery = { createdAt: -1 };
+        break;
+      case "oldest":
+        sortQuery = { createdAt: 1 };
+        break;
+      case "most_voted":
+        sortQuery = { upvotes: -1 };
+        break;
+      case "most_viewed":
+        sortQuery = { views: -1 };
+        break;
+      case "most_answered":
+        sortQuery = { answers: -1 };
+        break;
+    }
     const user = await User.findOne({ clerkId }).populate({
       path: "savedQuestions",
       match: query,
-      options: { sort: { createdAt: -1 } },
+      options: { sort: sortQuery },
       populate: [
         { path: "tags", model: Tag, select: "_id name" },
         { path: "author", model: User, select: "_id clerkId name picture" },
@@ -181,7 +211,7 @@ export async function getUserInfo(params: GetUserByIdParams) {
   try {
     await connectToDatabase();
 
-    const user = await User.findOne({ clerkId: params.userId });
+    const user = await User.findById(params.userId);
 
     if (!user) {
       throw new Error("User not found");

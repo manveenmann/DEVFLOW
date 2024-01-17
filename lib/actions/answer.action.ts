@@ -34,9 +34,24 @@ export async function createAnswer(params: CreateAnswerParams) {
 export async function getAllAnswers(params: GetAnswersParams) {
   try {
     await connectToDatabase();
+    let sort = {};
+    switch (params.sortBy) {
+      case "highestUpvotes":
+        sort = { upvotes: -1 };
+        break;
+      case "lowestUpvotes":
+        sort = { upvotes: 1 };
+        break;
+      case "recent":
+        console.log("recent");
+        sort = { createdAt: -1 };
+        break;
+      case "old":
+        sort = { createdAt: 1 };
+    }
     const answers = await Answer.find({ question: params.questionId })
       .populate("author", "_id clerkId name picture")
-      .sort({ createdAt: -1 });
+      .sort(sort);
     return answers;
   } catch (e: any) {
     console.error(`Error getting all answers: ${e.message}`);

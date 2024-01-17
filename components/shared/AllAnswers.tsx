@@ -21,6 +21,7 @@ interface AllAnswersProps {
 const AllAnswers = async (params: AllAnswersProps) => {
   const results = await getAllAnswers({
     questionId: JSON.parse(params.questionId),
+    sortBy: params.filter || "",
   });
   let mongoUser = { _id: "", savedQuestions: [] };
   if (params.userId) {

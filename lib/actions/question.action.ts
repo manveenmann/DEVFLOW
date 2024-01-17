@@ -52,18 +52,33 @@ export async function getQuestions(params: GetQuestionsParams) {
   try {
     const { page, pageSize, filter, searchQuery } = params;
     const query: FilterQuery<typeof Question> = {};
+    let sort = {};
     if (searchQuery) {
       query.$or = [
         { title: { $regex: new RegExp(searchQuery, "i") } },
         { description: { $regex: new RegExp(searchQuery, "i") } },
       ];
     }
+    switch (filter) {
+      case "newest":
+        sort = { createdAt: -1 };
+        break;
+      case "frequent":
+        sort = { views: -1 };
+        break;
+      case "unanswered":
+        query.answers = { $size: 0 };
+        break;
+      case "reccomended":
+        //TODO: Implement reccomended
+        break;
+    }
 
     await connectToDatabase();
     const questions = await Question.find(query)
       .populate({ path: "tags", model: Tag })
       .populate({ path: "author", model: User })
-      .sort({ createdAt: -1 });
+      .sort(sort);
     return { questions };
   } catch (err: any) {
     console.error(`Error getting questions: ${err.message}`);

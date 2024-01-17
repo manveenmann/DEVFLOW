@@ -13,7 +13,7 @@ import { auth } from "@clerk/nextjs";
 import { getUserByClerkId } from "@/lib/actions/user.action";
 import { redirect } from "next/navigation";
 
-const Page = async ({ params }: { params: any }) => {
+const Page = async ({ params, searchParams }: any) => {
   const result = await getQuestionById({ questionId: params.id });
   const { userId } = auth();
   let mongoUser = { _id: "", savedQuestions: [] };
@@ -106,6 +106,8 @@ const Page = async ({ params }: { params: any }) => {
         answers={result.answers.length}
         userId={userId}
         questionId={JSON.stringify(result._id)}
+        filter={searchParams.filter || ""}
+        page={searchParams.page || 1}
       />
     </>
   );
