@@ -50,7 +50,10 @@ export async function createQuestion(params: CreateQuestionParams) {
 
 export async function getQuestions(params: GetQuestionsParams) {
   try {
-    const { page, pageSize, filter, searchQuery } = params;
+    const { page = 1, pageSize = 10, filter, searchQuery } = params;
+
+    const skip = (page - 1) * pageSize;
+
     const query: FilterQuery<typeof Question> = {};
     let sort = {};
     if (searchQuery) {
@@ -78,11 +81,16 @@ export async function getQuestions(params: GetQuestionsParams) {
     const questions = await Question.find(query)
       .populate({ path: "tags", model: Tag })
       .populate({ path: "author", model: User })
-      .sort(sort);
-    return { questions };
+      .sort(sort)
+      .skip(skip)
+      .limit(pageSize);
+
+    const totalQuestions = await Question.countDocuments(query);
+
+    return { questions, isNext: totalQuestions > skip + questions.length };
   } catch (err: any) {
     console.error(`Error getting questions: ${err.message}`);
-    return { questions: [] };
+    return { questions: [], isNext: false };
   }
 }
 

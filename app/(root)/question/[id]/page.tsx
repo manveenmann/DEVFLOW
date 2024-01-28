@@ -11,9 +11,9 @@ import AllAnswers from "@/components/shared/AllAnswers";
 import Votes from "@/components/shared/Votes";
 import { auth } from "@clerk/nextjs";
 import { getUserByClerkId } from "@/lib/actions/user.action";
-import { redirect } from "next/navigation";
+import { URLProps } from "@/types";
 
-const Page = async ({ params, searchParams }: any) => {
+const Page = async ({ params, searchParams }: URLProps) => {
   const result = await getQuestionById({ questionId: params.id });
   const { userId } = auth();
   let mongoUser = { _id: "", savedQuestions: [] };
@@ -107,7 +107,7 @@ const Page = async ({ params, searchParams }: any) => {
         userId={userId}
         questionId={JSON.stringify(result._id)}
         filter={searchParams.filter || ""}
-        page={searchParams.page || 1}
+        page={parseInt(searchParams.page || "1")}
       />
     </>
   );

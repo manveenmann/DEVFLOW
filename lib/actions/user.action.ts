@@ -99,6 +99,7 @@ export async function getAllUsers(params: GetAllUsersParams) {
 
     const { page = 1, pageSize = 20, filter, searchQuery } = params;
     const query: FilterQuery<typeof User> = {};
+    const skip = (page - 1) * pageSize;
     let sortQuery = {};
     if (searchQuery) {
       query.$or = [
@@ -117,8 +118,12 @@ export async function getAllUsers(params: GetAllUsersParams) {
         sortQuery = { reputation: -1 };
         break;
     }
-    const users = await User.find(query).sort(sortQuery);
-    return { users };
+    const users = await User.find(query)
+      .sort(sortQuery)
+      .skip(skip)
+      .limit(pageSize);
+    const totalUsers = await User.countDocuments(query);
+    return { users, isNext: totalUsers > skip + users.length };
   } catch (err: any) {
     console.error(`Error getting users: ${err.message}`);
     throw err;
@@ -165,6 +170,7 @@ export async function getSavedQuestions(params: GetSavedQuestionsParams) {
     await connectToDatabase();
 
     const { clerkId, page = 1, pageSize = 10, searchQuery, filter } = params;
+    const skip = (page - 1) * pageSize;
     const query = searchQuery
       ? { title: { $regex: new RegExp(searchQuery, "i") } }
       : {};
@@ -189,7 +195,7 @@ export async function getSavedQuestions(params: GetSavedQuestionsParams) {
     const user = await User.findOne({ clerkId }).populate({
       path: "savedQuestions",
       match: query,
-      options: { sort: sortQuery },
+      options: { sort: sortQuery, skip, limit: pageSize + 1 },
       populate: [
         { path: "tags", model: Tag, select: "_id name" },
         { path: "author", model: User, select: "_id clerkId name picture" },
@@ -200,7 +206,10 @@ export async function getSavedQuestions(params: GetSavedQuestionsParams) {
       throw new Error("User not found");
     }
 
-    return { questions: user.savedQuestions };
+    return {
+      questions: user.savedQuestions.slice(0, pageSize),
+      isNext: user.savedQuestions.length > pageSize,
+    };
   } catch (err: any) {
     console.error(`Error getting users: ${err.message}`);
     throw err;
@@ -211,7 +220,7 @@ export async function getUserInfo(params: GetUserByIdParams) {
   try {
     await connectToDatabase();
 
-    const user = await User.findById(params.userId);
+    const user = await User.findOne({ clerkId: params.userId });
 
     if (!user) {
       throw new Error("User not found");
@@ -236,6 +245,7 @@ export async function getUserQuestions(params: GetUserStatsParams) {
     await connectToDatabase();
 
     const { userId, page = 1, pageSize = 10 } = params;
+    const skip = (page - 1) * pageSize;
 
     const totalQuestions = await Question.countDocuments({ author: userId });
     const userQuestions = await Question.find({ author: userId })
@@ -243,10 +253,16 @@ export async function getUserQuestions(params: GetUserStatsParams) {
         views: -1,
         upvotes: -1,
       })
+      .skip(skip)
+      .limit(pageSize)
       .populate("tags", "_id name")
       .populate("author", "_id clerkId name picture");
 
-    return { questions: userQuestions, totalQuestions };
+    return {
+      questions: userQuestions,
+      totalQuestions,
+      isNext: totalQuestions > skip + userQuestions.length,
+    };
   } catch (err: any) {
     console.error(`Error getting users: ${err.message}`);
     throw err;
@@ -258,13 +274,20 @@ export async function getUserAnswers(params: GetUserStatsParams) {
     await connectToDatabase();
     const { userId, page = 1, pageSize = 10 } = params;
     const totalAnswers = await Answer.countDocuments({ author: userId });
+    const skip = (page - 1) * pageSize;
     const userAnswers = await Answer.find({ author: userId })
       .sort({
         upvotes: -1,
       })
+      .skip(skip)
+      .limit(pageSize)
       .populate("question", "_id title")
       .populate("author", "_id clerkId name picture");
-    return { answers: userAnswers, totalAnswers };
+    return {
+      answers: userAnswers,
+      totalAnswers,
+      isNext: totalAnswers > skip + userAnswers.length,
+    };
   } catch (err: any) {
     console.error(`Error getting users: ${err.message}`);
     throw err;

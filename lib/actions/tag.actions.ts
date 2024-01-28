@@ -39,7 +39,8 @@ export async function getAllTags(params: GetAllTagsParams) {
   try {
     await connectToDatabase();
 
-    const { page = 1, pageSize = 10, searchQuery, filter } = params;
+    const { page = 1, pageSize = 15, searchQuery, filter } = params;
+    const skip = (page - 1) * pageSize;
     const query: FilterQuery<typeof Tag> = {};
     if (searchQuery) {
       query["name"] = { $regex: new RegExp(searchQuery, "i") };
@@ -47,7 +48,6 @@ export async function getAllTags(params: GetAllTagsParams) {
     let sortQuery = {};
     switch (filter) {
       case "recent":
-        console.log("recent");
         sortQuery = { createdOn: -1 };
         break;
       case "old":
@@ -60,9 +60,13 @@ export async function getAllTags(params: GetAllTagsParams) {
         sortQuery = { questions: 1 };
         break;
     }
-    const tags = await Tag.find(query).sort(sortQuery);
+    const tags = await Tag.find(query)
+      .sort(sortQuery)
+      .skip(skip)
+      .limit(pageSize);
+    const total = await Tag.countDocuments(query);
 
-    return { tags };
+    return { tags, isNext: total > skip + tags.length };
   } catch (err: any) {
     console.error(`Error getting users: ${err.message}`);
     throw err;
@@ -74,6 +78,7 @@ export async function getQuestionsByTagId(params: GetQuestionsByTagIdParams) {
     await connectToDatabase();
 
     const { tagId, page = 1, pageSize = 10, searchQuery } = params;
+    const skip = (page - 1) * pageSize;
 
     const query = searchQuery
       ? { title: { $regex: new RegExp(searchQuery, "i") } }
@@ -83,7 +88,7 @@ export async function getQuestionsByTagId(params: GetQuestionsByTagIdParams) {
       path: "questions",
       model: Question,
       match: query,
-      options: { sort: { createdAt: -1 } },
+      options: { sort: { createdAt: -1 }, skip, limit: pageSize + 1 },
       populate: [
         { path: "tags", model: Tag, select: "_id name" },
         { path: "author", model: User, select: "_id clerkId name picture" },
@@ -94,7 +99,11 @@ export async function getQuestionsByTagId(params: GetQuestionsByTagIdParams) {
       throw new Error("Tag not found");
     }
 
-    return { tag: tag.name, questions: tag.questions };
+    return {
+      tag: tag.name,
+      questions: tag.questions.slice(0, pageSize),
+      isNext: tag.questions.length > pageSize,
+    };
   } catch (err: any) {
     console.error(`Error getting users: ${err.message}`);
     throw err;

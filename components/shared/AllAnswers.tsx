@@ -2,13 +2,9 @@ import { AnswerFilters } from "@/constants/filters";
 import { getAllAnswers } from "@/lib/actions/answer.action";
 import React from "react";
 import Filter from "./Filter";
-import Link from "next/link";
-import Image from "next/image";
-import { getTimestamp } from "@/lib/utils";
-import ParseHTML from "./ParseHTML";
-import Votes from "./Votes";
 import { getUserByClerkId } from "@/lib/actions/user.action";
 import AnswerCard from "../cards/AnswerCard";
+import Pagination from "./Pagination";
 
 interface AllAnswersProps {
   questionId: string;
@@ -22,6 +18,7 @@ const AllAnswers = async (params: AllAnswersProps) => {
   const results = await getAllAnswers({
     questionId: JSON.parse(params.questionId),
     sortBy: params.filter || "",
+    page: params.page ? +params.page : 1,
   });
   let mongoUser = { _id: "", savedQuestions: [] };
   if (params.userId) {
@@ -34,7 +31,7 @@ const AllAnswers = async (params: AllAnswersProps) => {
         <Filter filters={AnswerFilters} />
       </div>
       <div>
-        {results.map((answer) => (
+        {results.answers.map((answer) => (
           <AnswerCard
             key={answer._id}
             _id={answer._id}
@@ -56,6 +53,12 @@ const AllAnswers = async (params: AllAnswersProps) => {
             )}
           />
         ))}
+      </div>
+      <div className="mt-10">
+        <Pagination
+          page={params.page ? +params.page : 1}
+          isNext={results.isNext || false}
+        />
       </div>
     </div>
   );
