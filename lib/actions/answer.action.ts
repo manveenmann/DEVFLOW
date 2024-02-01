@@ -44,7 +44,6 @@ export async function getAllAnswers(params: GetAnswersParams) {
         sort = { upvotes: 1 };
         break;
       case "recent":
-        console.log("recent");
         sort = { createdAt: -1 };
         break;
       case "old":
