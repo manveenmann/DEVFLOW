@@ -12,7 +12,7 @@ import { redirect } from "next/navigation";
 export default async function Collections({ searchParams }: SearchParamsProps) {
   const { userId } = auth();
   if (!userId) {
-    redirect("/login");
+    redirect("/sign-in");
   }
   const results = await getSavedQuestions({
     clerkId: userId,

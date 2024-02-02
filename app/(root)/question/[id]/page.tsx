@@ -9,7 +9,7 @@ import RenderTag from "@/components/shared/RenderTag";
 import Answer from "@/components/forms/Answer";
 import AllAnswers from "@/components/shared/AllAnswers";
 import Votes from "@/components/shared/Votes";
-import { auth } from "@clerk/nextjs";
+import { SignedIn, auth } from "@clerk/nextjs";
 import { getUserByClerkId } from "@/lib/actions/user.action";
 import { URLProps } from "@/types";
 
@@ -29,7 +29,7 @@ const Page = async ({ params, searchParams }: URLProps) => {
           sm:items-center sm:gap-2"
         >
           <Link
-            href={`/profile/${result.author._id}`}
+            href={`/profile/${result.author.clerkId}`}
             className="flex items-center justify-start gap-1"
           >
             <Image
@@ -100,7 +100,9 @@ const Page = async ({ params, searchParams }: URLProps) => {
         ))}
       </div>
 
-      <Answer questionId={JSON.stringify(result._id)} />
+      <SignedIn>
+        <Answer questionId={JSON.stringify(result._id)} />
+      </SignedIn>
 
       <AllAnswers
         answers={result.answers.length}

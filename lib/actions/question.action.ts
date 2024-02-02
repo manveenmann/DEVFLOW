@@ -82,9 +82,6 @@ export async function getQuestions(params: GetQuestionsParams) {
       case "unanswered":
         query.answers = { $size: 0 };
         break;
-      case "reccomended":
-        //TODO: Implement reccomended
-        break;
     }
 
     await connectToDatabase();

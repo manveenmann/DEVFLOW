@@ -14,7 +14,6 @@ const layout = ({ children }: { children: React.ReactNode }) => {
         </section>
         <RightSidebar />
       </div>
-      Toaster
     </main>
   );
 };

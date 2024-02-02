@@ -49,7 +49,7 @@ const AnswerCard = ({
       <div className="flex items-center justify-between">
         <div className="mb-8 flex flex-col-reverse justify-between gap-5 sm:flex-row sm:items-center sm:gap-2">
           <Link
-            href={`/profile/${authorId}`}
+            href={`/profile/${authorClerkId}`}
             className="flex flex-1 items-start gap-1 sm:items-center"
           >
             <Image
