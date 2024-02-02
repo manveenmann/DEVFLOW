@@ -30,7 +30,6 @@ export async function globalSearch(params: SearchParams) {
         const queryResults = await model
           .find({ [searchField]: regex })
           .limit(2);
-        console.log(queryResults);
         results.push(
           ...queryResults.map((item) => ({
             title:
@@ -74,10 +73,6 @@ export async function globalSearch(params: SearchParams) {
               : item._id,
       }));
     }
-    console.log(
-      "results>>>>>>>>>>>>>>>>--------------------------------------------",
-    );
-    console.log(results);
     return JSON.stringify(results);
   } catch (e) {
     console.error(`Error fetching global results: ${e}`);
