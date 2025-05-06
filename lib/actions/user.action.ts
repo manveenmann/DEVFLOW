@@ -231,20 +231,51 @@ export async function getUserInfo(params: GetUserByIdParams) {
     const totalQuestions = await Question.countDocuments({ author: user._id });
     const totalAnswers = await Answer.countDocuments({ author: user._id });
 
-    const [questionUpvotes] = await Question.aggregate([
-      { $match: { author: user._id } },
-      { $project: { _id: 0, upvotes: { $size: "$upvotes" } } },
-      { $group: { _id: null, totalUpvotes: { $sum: "$upvotes" } } },
-    ]);
-    const [answerUpvotes] = await Answer.aggregate([
-      { $match: { author: user._id } },
-      { $project: { _id: 0, upvotes: { $size: "$upvotes" } } },
-      { $group: { _id: null, totalUpvotes: { $sum: "$upvotes" } } },
-    ]);
-    const [views] = await Question.aggregate([
-      { $match: { author: user._id } },
-      { $group: { _id: null, totalViews: { $sum: "$views" } } },
-    ]);
+   // Get total upvotes on questions
+const [questionUpvotes] = await Question.aggregate([
+  { $match: { author: user._id } },
+  {
+    $project: {
+      _id: 0,
+      upvotesCount: { $size: { $ifNull: ["$upvotes", []] } }
+    }
+  },
+  {
+    $group: {
+      _id: null,
+      totalUpvotes: { $sum: "$upvotesCount" }
+    }
+  }
+]);
+
+// Get total upvotes on answers
+const [answerUpvotes] = await Answer.aggregate([
+  { $match: { author: user._id } },
+  {
+    $project: {
+      _id: 0,
+      upvotesCount: { $size: { $ifNull: ["$upvotes", []] } }
+    }
+  },
+  {
+    $group: {
+      _id: null,
+      totalUpvotes: { $sum: "$upvotesCount" }
+    }
+  }
+]);
+
+// Get total views on user's questions
+const [views] = await Question.aggregate([
+  { $match: { author: user._id } },
+  {
+    $group: {
+      _id: null,
+      totalViews: { $sum: { $ifNull: ["$views", 0] } }
+    }
+  }
+]);
+
 
     const criteria = [
       {

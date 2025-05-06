@@ -113,14 +113,23 @@ export async function getQuestionsByTagId(params: GetQuestionsByTagIdParams) {
 export async function getTopTags() {
   try {
     await connectToDatabase();
+  
     const tags = await Tag.aggregate([
-      { $project: { name: 1, numberOfQuestions: { $size: "$questions" } } },
+      {
+        $project: {
+          name: 1,
+          numberOfQuestions: {
+            $size: { $ifNull: ["$questions", []] }  // Prevents error if "questions" is null or missing
+          }
+        }
+      },
       { $sort: { numberOfQuestions: -1 } },
-      { $limit: 5 },
+      { $limit: 5 }
     ]);
+  
     return tags;
-  } catch (err: any) {
-    console.error(`Error getting users: ${err.message}`);
-    throw err;
+  } catch (error) {
+    console.error("Aggregation error:", error);
+    return [];
   }
 }
